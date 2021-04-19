@@ -2,8 +2,6 @@
 # author: LiuChen
 
 import random
-import struct
-from mnist import MNIST
 import numpy as np
 
 def load_iris_data(path):
