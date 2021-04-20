@@ -4,11 +4,12 @@
 # !@Author  : miracleyin @email: miracleyin@live.com
 # !@File    : module.py
 import numpy as np
-from activater import Sigmoid
-from loss import MSELoss
+import math
+import pickle
 
 
-class Layer(object):
+
+class Linear(object):
     """
     神经网络的一层
     """
@@ -29,7 +30,7 @@ class Layer(object):
         self.network = None  # 当前层所属的神经网络
         self.prev_layer = None  # 当前层的前一层
         self.next_layer = None  # 当前层的后一层
-        self.name = "Layer"
+        self.name = "Linear"
 
     def set_input(self, x):
         """
@@ -76,7 +77,7 @@ class Layer(object):
         避免梯度爆炸
         """
         threshold = 1 / self.network.lmd  # 最大梯度设置成1/lr
-        norm_dW = np.linalg.norm(self.dw)
+        norm_dW = np.linalg.norm(self.dW)
         norm_db = np.linalg.norm(self.db)
         if norm_dW > threshold:
             self.dW = threshold * self.dW / norm_dW
@@ -133,6 +134,43 @@ class Layer(object):
         self.b = np.array(b)
 
 
+def batch_generate(data_set, label_set, batch_size):
+    """
+    把数据集转成minibatchÒ
+    """
+    size = len(data_set)
+    data_set = np.array(data_set)
+    label_set = np.array(label_set)
+    num_batch = 0
+    if size % batch_size == 0:
+        num_batch = int(size/batch_size)
+    else:
+        num_batch = math.ceil(size/batch_size)
+    rand_index = list(range(size))
+    np.random.shuffle(list(range(size)))
+    for i in range(num_batch):
+        start = i*batch_size
+        end = min((i+1)*(batch_size), size)
+        yield data_set[rand_index[start:end]], label_set[rand_index[start:end]]
+
+
+def save_model(model, path):
+    """
+    保存模型
+    """
+    with open(path, 'wb') as f:
+        pickle.dump(model, f)
+
+def load_model(path):
+    """
+    加载模型
+    """
+    model = None
+    with open(path, 'rb') as f:
+        model = pickle.load(f)
+    return model
+
 if __name__ == '__main__':
-    a = Sigmoid()
-    print(a.diff(2))
+    x = np.random.rand(10, 1)
+
+    pass
